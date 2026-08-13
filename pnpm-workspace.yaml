@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - onnxruntime-node
+  - sharp
+  - "@sparticuz/chromium"
+  - protobufjs

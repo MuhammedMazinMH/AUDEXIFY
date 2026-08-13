@@ -1,0 +1,162 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-space-grotesk), system-ui, sans-serif;
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-serious: var(--severity-serious);
+  --color-severity-moderate: var(--severity-moderate);
+  --color-severity-minor: var(--severity-minor);
+  --color-success: var(--success);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/*
+ * AUDEXIFY is a dark-first product. The brand theme is applied
+ * unconditionally so the interface is consistent in every color scheme.
+ */
+:root,
+.dark {
+  color-scheme: dark;
+  --radius: 0.75rem;
+
+  --background: oklch(0.13 0.02 275);
+  --foreground: oklch(0.95 0.008 270);
+  --card: oklch(0.17 0.022 275);
+  --card-foreground: oklch(0.95 0.008 270);
+  --popover: oklch(0.17 0.022 275);
+  --popover-foreground: oklch(0.95 0.008 270);
+  --primary: oklch(0.62 0.24 280);
+  --primary-foreground: oklch(0.98 0.005 270);
+  --secondary: oklch(0.23 0.03 278);
+  --secondary-foreground: oklch(0.95 0.008 270);
+  --muted: oklch(0.2 0.024 275);
+  --muted-foreground: oklch(0.7 0.02 272);
+  --accent: oklch(0.25 0.04 280);
+  --accent-foreground: oklch(0.95 0.008 270);
+  --destructive: oklch(0.6 0.21 25);
+  --destructive-foreground: oklch(0.97 0.005 250);
+  --border: oklch(0.27 0.03 276);
+  --input: oklch(0.27 0.03 276);
+  --ring: oklch(0.62 0.24 280);
+
+  --severity-critical: oklch(0.64 0.2 25);
+  --severity-serious: oklch(0.71 0.15 55);
+  --severity-moderate: oklch(0.8 0.13 90);
+  --severity-minor: oklch(0.72 0.12 265);
+  --success: oklch(0.74 0.14 155);
+
+  /* Signature glow used by the hero and interactive surfaces */
+  --glow: oklch(0.62 0.24 280 / 0.35);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply bg-background;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif;
+  }
+}
+
+@layer utilities {
+  /* Staggered entrance for page sections — GPU-composited, no layout thrash */
+  .animate-rise {
+    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-rise-delay-1 {
+    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+  }
+  .animate-rise-delay-2 {
+    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
+  }
+  .animate-rise-delay-3 {
+    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+  }
+
+  /* Interactive card lift — transform/shadow only, cheap to composite */
+  .card-lift {
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklch, var(--primary) 45%, var(--border));
+    box-shadow: 0 8px 30px -12px var(--glow);
+  }
+
+  /* Hero grid backdrop — pure CSS, zero network cost */
+  .hero-grid {
+    background-image:
+      linear-gradient(color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 75%);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-delay-1,
+  .animate-rise-delay-2,
+  .animate-rise-delay-3 {
+    animation: none;
+  }
+  .card-lift,
+  .card-lift:hover {
+    transition: none;
+    transform: none;
+  }
+}
