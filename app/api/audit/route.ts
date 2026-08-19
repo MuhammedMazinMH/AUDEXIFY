@@ -35,12 +35,12 @@ export async function POST(request: Request) {
       error instanceof Error && /timeout/i.test(error.message)
         ? 'The page took too long to load. Try again or audit a different page.'
         : 'The audit could not be completed. The page may be unreachable or blocking automated browsers.'
-    // Sanitized diagnostic: error class + first line of the message, with
-    // absolute filesystem paths stripped. No stack traces are exposed.
+    // Diagnostic: error class + first line of the message. Paths are our own
+    // serverless filesystem layout, needed to debug deployment packaging.
     const detail =
       error instanceof Error
-        ? `${error.constructor.name}: ${error.message.split('\n')[0].replace(/\/[\w./-]+/g, '[path]').slice(0, 200)}`
-        : String(error).slice(0, 200)
+        ? `${error.constructor.name}: ${error.message.split('\n')[0].slice(0, 300)}`
+        : String(error).slice(0, 300)
     return NextResponse.json({ error: message, detail }, { status: 502 })
   }
 }
