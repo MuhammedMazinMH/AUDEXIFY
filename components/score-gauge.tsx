@@ -16,8 +16,8 @@ export function ScoreGauge({ score }: { score: AuditScore }) {
   const color = scoreColor(score.overall)
 
   return (
-    <div className="flex items-center gap-6">
-      <div className="relative size-36 shrink-0" role="img" aria-label={`Accessibility score ${score.overall} out of 100, grade ${score.grade}`}>
+    <div className="flex flex-col items-center gap-5 sm:flex-row sm:gap-6">
+      <div className="relative size-32 shrink-0 sm:size-36" role="img" aria-label={`Accessibility score ${score.overall} out of 100, grade ${score.grade}`}>
         <svg viewBox="0 0 144 144" className="size-full -rotate-90">
           <circle cx="72" cy="72" r={radius} fill="none" strokeWidth="10" className="stroke-muted" />
           <circle
@@ -37,7 +37,7 @@ export function ScoreGauge({ score }: { score: AuditScore }) {
           <span className="text-xs text-muted-foreground">Grade {score.grade}</span>
         </div>
       </div>
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+      <dl className="grid w-full min-w-0 grid-cols-1 gap-x-6 gap-y-2 text-sm min-[400px]:grid-cols-2 sm:w-auto">
         <div className="flex items-center gap-2">
           <span className="size-2 rounded-full bg-severity-critical" aria-hidden="true" />
           <dt className="text-muted-foreground">Critical</dt>
@@ -58,7 +58,7 @@ export function ScoreGauge({ score }: { score: AuditScore }) {
           <dt className="text-muted-foreground">Minor</dt>
           <dd className="ml-auto font-medium tabular-nums">{score.severityCounts.minor}</dd>
         </div>
-        <div className="col-span-2 mt-1 flex items-center gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
+        <div className="col-span-full mt-1 flex flex-wrap items-center gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
           <span>{score.passedRules} rules passed</span>
           <span aria-hidden="true">·</span>
           <span>{score.failedRules} issues found</span>
