@@ -21,6 +21,10 @@ const ONNX_RUNTIME_FILES = [
 const CHROMIUM_BIN =
   './node_modules/.pnpm/@sparticuz+chromium@*/node_modules/@sparticuz/chromium/bin/**'
 
+// axe.min.js is read with fs at runtime (lib/audit/axe.ts) to inject into the
+// audited page — a dynamic read that static tracing cannot see.
+const AXE_MIN = './node_modules/.pnpm/axe-core@*/node_modules/axe-core/axe.min.js'
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -38,7 +42,7 @@ const nextConfig = {
   // loaded via fs / dynamic paths (see lib/ml/nlp.ts and lib/ml/vision.ts),
   // which static tracing cannot follow — force-include them per route.
   outputFileTracingIncludes: {
-    '/api/audit': ['./models/nlp/**', CHROMIUM_BIN, ...ONNX_RUNTIME_FILES],
+    '/api/audit': ['./models/nlp/**', AXE_MIN, CHROMIUM_BIN, ...ONNX_RUNTIME_FILES],
     '/api/screenshot': ['./models/vision/**', ...ONNX_RUNTIME_FILES],
     '/api/health': ['./models/nlp/**', './models/vision/**', ...ONNX_RUNTIME_FILES],
   },

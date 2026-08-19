@@ -1,5 +1,6 @@
 import 'server-only'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import type { Page } from 'puppeteer-core'
 
@@ -34,12 +35,42 @@ export interface AxeRunOutput {
 
 let axeSource: string | null = null
 
+/**
+ * Locates axe.min.js across every runtime layout:
+ * 1. Node module resolution from the project root (dev, npm/yarn layouts)
+ * 2. The plain node_modules path (hoisted installs)
+ * 3. The real pnpm store path (Vercel functions: file tracing ships the
+ *    .pnpm directory without recreating the node_modules symlink)
+ */
+function resolveAxePath(): string {
+  try {
+    const requireFromRoot = createRequire(path.join(process.cwd(), 'package.json'))
+    return requireFromRoot.resolve('axe-core/axe.min.js')
+  } catch {
+    // fall through to filesystem candidates
+  }
+
+  const direct = path.join(process.cwd(), 'node_modules', 'axe-core', 'axe.min.js')
+  if (existsSync(direct)) return direct
+
+  const pnpmStore = path.join(process.cwd(), 'node_modules', '.pnpm')
+  if (existsSync(pnpmStore)) {
+    const entry = readdirSync(pnpmStore).find((name) => name.startsWith('axe-core@'))
+    if (entry) {
+      const candidate = path.join(pnpmStore, entry, 'node_modules', 'axe-core', 'axe.min.js')
+      if (existsSync(candidate)) return candidate
+    }
+  }
+
+  throw new Error(
+    'axe-core/axe.min.js could not be located in the deployed bundle. ' +
+      'Check outputFileTracingIncludes in next.config.mjs.',
+  )
+}
+
 function getAxeSource(): string {
   if (!axeSource) {
-    axeSource = readFileSync(
-      path.join(process.cwd(), 'node_modules', 'axe-core', 'axe.min.js'),
-      'utf8',
-    )
+    axeSource = readFileSync(resolveAxePath(), 'utf8')
   }
   return axeSource
 }
