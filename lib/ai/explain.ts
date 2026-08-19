@@ -57,10 +57,12 @@ async function generateGrounded<T>(
     return schema.parse(object)
   }
 
-  // Try primary then fallback model; on a 429 rate limit, wait for the
-  // per-minute quota window to replenish and retry with spaced backoff.
+  // Try primary then fallback model; on a 429 rate limit, retry once with a
+  // short backoff. Kept deliberately snappy: the deterministic audit + ML
+  // results are already complete, so a stalled explanation should fail fast
+  // rather than block the whole response for tens of seconds.
   const models = [PRIMARY_MODEL, FALLBACK_MODEL]
-  const backoffMs = [0, 6000, 12000]
+  const backoffMs = [0, 1500]
   let lastError: unknown
 
   for (const model of models) {

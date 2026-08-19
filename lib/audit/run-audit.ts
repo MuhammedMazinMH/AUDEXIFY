@@ -21,6 +21,25 @@ import { summarizeAudit, explainIssue } from '@/lib/ai/explain'
  */
 
 const EXPLAIN_TOP_N = 5
+/** Concurrent local ONNX severity inferences (CPU-bound, no rate limits). */
+const NLP_CONCURRENCY = 4
+/** Concurrent LLM enrichment calls (bounded to stay friendly to the gateway). */
+const LLM_CONCURRENCY = 3
+
+/**
+ * Runs the given task thunks with a bounded number in flight at once.
+ * Replaces sequential await-in-loop so independent work overlaps.
+ */
+async function runWithConcurrency(tasks: Array<() => Promise<void>>, limit: number): Promise<void> {
+  let cursor = 0
+  const workers = Array.from({ length: Math.min(limit, tasks.length) }, async () => {
+    while (cursor < tasks.length) {
+      const index = cursor++
+      await tasks[index]()
+    }
+  })
+  await Promise.all(workers)
+}
 
 export async function runAudit(rawUrl: string): Promise<AuditResult> {
   const started = Date.now()
@@ -37,24 +56,28 @@ export async function runAudit(rawUrl: string): Promise<AuditResult> {
     const score = calculateScore(issues, axeOutput.passes.length)
 
     // Real DistilBERT severity classification — never heuristic.
+    // Inferences run concurrently (bounded) since each finding is independent.
     const nlpStatus = await getNlpModelStatus()
     if (nlpStatus.available) {
-      for (const issue of issues) {
-        try {
-          const prediction = await classifyFindingSeverity(
-            `Accessibility finding. ${issue.description}`,
-          )
-          issue.ml = {
-            model: prediction.model,
-            predictedSeverity: prediction.severity,
-            score: prediction.score,
+      await runWithConcurrency(
+        issues.map((issue) => async () => {
+          try {
+            const prediction = await classifyFindingSeverity(
+              `Accessibility finding. ${issue.description}`,
+            )
+            issue.ml = {
+              model: prediction.model,
+              predictedSeverity: prediction.severity,
+              score: prediction.score,
+            }
+            issue.source = 'hybrid'
+          } catch (error) {
+            // A per-issue inference failure is logged but never substituted.
+            console.error(`[audexify] NLP inference failed for ${issue.ruleId}:`, error)
           }
-          issue.source = 'hybrid'
-        } catch (error) {
-          // A per-issue inference failure is logged but never substituted.
-          console.error(`[audexify] NLP inference failed for ${issue.ruleId}:`, error)
-        }
-      }
+        }),
+        NLP_CONCURRENCY,
+      )
     }
 
     const result: AuditResult = {
@@ -77,25 +100,30 @@ export async function runAudit(rawUrl: string): Promise<AuditResult> {
     }
 
     // LLM enrichment — non-fatal: the audit stands on its own if the LLM fails.
-    // Calls run sequentially to stay within gateway rate limits; each issue
-    // explanation is independently best-effort.
-    try {
-      const summaryOut = await summarizeAudit({ url: result.url, pageTitle, score, issues })
-      result.summary = summaryOut.summary
-      result.engine.llmModel = summaryOut.model
-    } catch (error) {
-      console.error('[audexify] LLM summary failed; returning unenriched audit:', error)
-    }
-
-    for (const issue of issues.slice(0, EXPLAIN_TOP_N)) {
-      try {
-        const { explanation } = await explainIssue(issue)
-        issue.explanation = explanation
-      } catch (error) {
-        console.error(`[audexify] LLM explanation failed for ${issue.ruleId}:`, error)
-        break // rate-limited or unavailable — stop making further calls
-      }
-    }
+    // The summary and each top-issue explanation are independent, so they run
+    // concurrently (bounded) instead of in a sequential chain. Each task is
+    // self-contained and best-effort; a failure never aborts the others.
+    const enrichmentTasks: Array<() => Promise<void>> = [
+      async () => {
+        try {
+          const summaryOut = await summarizeAudit({ url: result.url, pageTitle, score, issues })
+          result.summary = summaryOut.summary
+          result.engine.llmModel = summaryOut.model
+        } catch (error) {
+          console.error('[audexify] LLM summary failed; returning unenriched audit:', error)
+        }
+      },
+      ...issues.slice(0, EXPLAIN_TOP_N).map((issue) => async () => {
+        try {
+          const { explanation, model } = await explainIssue(issue)
+          issue.explanation = explanation
+          result.engine.llmModel ??= model
+        } catch (error) {
+          console.error(`[audexify] LLM explanation failed for ${issue.ruleId}:`, error)
+        }
+      }),
+    ]
+    await runWithConcurrency(enrichmentTasks, LLM_CONCURRENCY)
 
     result.durationMs = Date.now() - started
     return result
