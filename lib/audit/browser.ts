@@ -18,6 +18,16 @@ const LOCAL_CHROME_PATHS = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 ]
 
+/**
+ * Official pack for the installed @sparticuz/chromium version. On serverless
+ * the brotli archives inside node_modules do not reliably survive bundling,
+ * so the binary is fetched from the pinned GitHub release into /tmp at cold
+ * start (cached for the life of the warm instance) via the package's own
+ * downloadAndExtract support in executablePath(url).
+ */
+const CHROMIUM_PACK_URL =
+  'https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.x64.tar'
+
 async function resolveExecutablePath(): Promise<{ path: string; args: string[] }> {
   const chromium = (await import('@sparticuz/chromium')).default
 
@@ -25,9 +35,15 @@ async function resolveExecutablePath(): Promise<{ path: string; args: string[] }
     return { path: process.env.CHROME_EXECUTABLE_PATH, args: [] }
   }
 
-  // Serverless (Vercel/AWS): use the packaged binary
+  // Serverless (Vercel/AWS): download the pinned pack into /tmp (cached per
+  // warm instance). Falls back to the locally bundled archives if present.
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    return { path: await chromium.executablePath(), args: chromium.args }
+    try {
+      return { path: await chromium.executablePath(CHROMIUM_PACK_URL), args: chromium.args }
+    } catch (error) {
+      console.error('[audexify] Remote chromium pack failed, trying bundled archives:', error)
+      return { path: await chromium.executablePath(), args: chromium.args }
+    }
   }
 
   for (const candidate of LOCAL_CHROME_PATHS) {
