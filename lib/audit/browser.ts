@@ -6,11 +6,15 @@ import type { Browser, Page } from 'puppeteer-core'
  * Headless browser service.
  *
  * On Vercel (serverless) it uses @sparticuz/chromium's packaged binary.
- * Locally it falls back to a system Chrome/Chromium install or the
- * CHROME_EXECUTABLE_PATH env var.
+ * Locally it falls back to a system Chrome/Chromium/Edge install or the
+ * CHROME_EXECUTABLE_PATH / CHROMIUM_EXECUTABLE_PATH env vars.
  */
 
 const LOCAL_CHROME_PATHS = [
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
   '/usr/bin/google-chrome-stable',
   '/usr/bin/google-chrome',
   '/usr/bin/chromium-browser',
@@ -31,8 +35,9 @@ const CHROMIUM_PACK_URL =
 async function resolveExecutablePath(): Promise<{ path: string; args: string[] }> {
   const chromium = (await import('@sparticuz/chromium')).default
 
-  if (process.env.CHROME_EXECUTABLE_PATH && existsSync(process.env.CHROME_EXECUTABLE_PATH)) {
-    return { path: process.env.CHROME_EXECUTABLE_PATH, args: [] }
+  const envPath = process.env.CHROME_EXECUTABLE_PATH || process.env.CHROMIUM_EXECUTABLE_PATH
+  if (envPath && existsSync(envPath)) {
+    return { path: envPath, args: [] }
   }
 
   // Serverless (Vercel/AWS): download the pinned pack into /tmp (cached per

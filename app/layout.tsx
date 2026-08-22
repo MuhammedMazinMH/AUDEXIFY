@@ -1,24 +1,35 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Chivo, Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const spaceGrotesk = Space_Grotesk({
+const chivo = Chivo({
   subsets: ['latin'],
-  variable: '--font-space-grotesk',
+  variable: '--font-chivo',
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
   title: 'AUDEXIFY — AI-Powered Web Accessibility Intelligence',
   description:
-    'Audit any website for accessibility issues with deterministic detection, custom ML classification, and AI-generated remediation guidance mapped to WCAG.',
-  generator: 'v0.app',
+    'Audit any website for accessibility issues with deterministic axe-core detection, custom ML classification, and grounded AI remediation guidance mapped to WCAG.',
 }
 
 export const viewport: Viewport = {
   colorScheme: 'dark',
-  themeColor: '#151a24',
+  themeColor: '#08090B',
 }
 
 export default function RootLayout({
@@ -27,8 +38,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="bg-background">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
+    <html lang="en" className="dark bg-[#08090B]">
+      <body
+        className={`${chivo.variable} ${inter.variable} ${jetbrainsMono.variable} min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary/20 selection:text-primary`}
+      >
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

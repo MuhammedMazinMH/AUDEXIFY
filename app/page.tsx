@@ -1,205 +1,285 @@
 import Link from 'next/link'
-import { ArrowRight, Cpu, FlaskConical, ScanEye, ShieldCheck, Sparkles } from 'lucide-react'
+import {
+  Cpu,
+  FlaskConical,
+  ScanEye,
+  ShieldCheck,
+  Sparkles,
+  Terminal,
+  Activity,
+  CheckCircle2,
+} from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { SiteHeader } from '@/components/site-header'
+import { TelemetryBackground } from '@/components/telemetry-background'
+import { HeroTelemetry } from '@/components/hero-telemetry'
+import { SystemIntro } from '@/components/system-intro'
 
 const PIPELINE = [
   {
     icon: Cpu,
-    label: 'Deterministic engine',
-    title: 'axe-core in a real browser',
-    body: 'Every page loads in a headless Chromium instance and runs the full axe-core WCAG 2.2 rule set. Findings here are facts, not predictions.',
+    step: '01',
+    label: 'Deterministic Engine',
+    title: 'axe-core in Real Chromium',
+    body: 'Every target executes in an isolated headless browser with the full axe-core WCAG 2.2 rule set. Findings are objective facts, not probabilistic guesses.',
     badge: 'Deterministic',
-    badgeClass: 'bg-success/15 text-success',
+    badgeClass: 'border-border bg-surface-elevated text-muted-foreground',
   },
   {
     icon: FlaskConical,
-    label: 'Custom ML models',
-    title: 'Quality, not just presence',
-    body: 'A trained DistilBERT model independently assesses the severity of each detected finding, and a trained EfficientNet vision model classifies screenshot regions - both running locally via ONNX, never as heuristics.',
+    step: '02',
+    label: 'Custom ML Models',
+    title: 'DistilBERT & EfficientNet via ONNX',
+    body: 'Trained sequence and vision classifiers evaluate finding severity and screenshot layout density locally via onnxruntime-node, never substituting fake heuristics.',
     badge: 'Custom ML',
-    badgeClass: 'bg-severity-minor/15 text-severity-minor',
+    badgeClass: 'border-primary/40 bg-primary/10 text-primary',
   },
   {
     icon: Sparkles,
-    label: 'LLM explanation layer',
-    title: 'Grounded AI narration',
-    body: 'A Groq-served LLM turns structured findings into plain-language explanations, remediation steps, and executive summaries. It never invents issues - it only explains what the engines found.',
-    badge: 'AI-generated',
-    badgeClass: 'bg-severity-moderate/15 text-severity-moderate',
+    step: '03',
+    label: 'LLM Explanation Layer',
+    title: 'Grounded Remediation Synthesis',
+    body: 'Groq-served models synthesize structured findings into plain-language developer explanations and remediation patches, strictly constrained from inventing issues.',
+    badge: 'AI-Generated',
+    badgeClass: 'border-severity-moderate/40 bg-severity-moderate/10 text-severity-moderate',
   },
 ] as const
 
-const PRINCIPLES = [
+const TRUST_FACTORS = [
   {
-    title: 'Detection is never hallucinated',
-    body: 'Issues come exclusively from axe-core and the custom classifiers. The LLM receives findings as structured data and is prompted to never alter severities, counts, or rules.',
+    icon: ShieldCheck,
+    title: 'Detection is Never Hallucinated',
+    body: 'Issues originate exclusively from deterministic axe-core checks and custom ML classifiers. The LLM only explains what the engines validated.',
   },
   {
-    title: 'Every claim is labeled by provenance',
-    body: 'Deterministic, Custom ML, and AI-generated content each carry a distinct badge in the report, so you always know how a statement was produced.',
+    icon: Activity,
+    title: 'Transparent Provenance Tagging',
+    body: 'Deterministic, Custom ML, and AI-Generated insights carry explicit badges so engineers know exactly how every insight was produced.',
   },
   {
-    title: 'Graceful degradation, never fabrication',
-    body: 'If a trained ONNX model is unavailable, the report says so plainly — heuristic guesses are never substituted. If the LLM is unreachable, the audit still returns complete deterministic results.',
+    icon: Terminal,
+    title: 'Hardened SSRF & Target Security',
+    body: 'Comprehensive URL validation blocks private IP ranges, cloud metadata endpoints, loopback interfaces, and invalid host schemes.',
   },
   {
-    title: 'Hardened by default',
-    body: 'SSRF-guarded URL validation, DNS resolution checks against private ranges, strict upload limits, and schema-validated LLM outputs.',
+    icon: Cpu,
+    title: 'Strict Non-Heuristic Degradation',
+    body: 'If custom ONNX models are unavailable, the report transparently indicates fallback rather than inventing synthetic predictions.',
   },
 ] as const
 
 export default function HomePage() {
   return (
-    <>
+    <div className="relative min-h-screen bg-background text-foreground flex flex-col">
+      {/* 2-3s Cinematic Opening Sequence */}
+      <SystemIntro />
+
+      {/* Living Atmospheric Telemetry Background (Landing Variant) */}
+      <TelemetryBackground variant="landing" />
+
       <SiteHeader />
-      <main>
-        {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border">
-          <div className="hero-grid absolute inset-0" aria-hidden="true" />
-          <div
-            className="absolute left-1/2 top-0 h-72 w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/25 blur-[110px]"
-            aria-hidden="true"
-          />
-          <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-4 py-20 md:px-6 md:py-28">
-            <div className="flex max-w-3xl flex-col gap-6">
-              <p className="animate-rise flex items-center gap-2 text-sm font-medium text-primary">
-                <ScanEye className="size-4" aria-hidden="true" />
-                Accessibility intelligence, three engines deep
-              </p>
-              <h1 className="animate-rise-delay-1 text-4xl font-bold leading-tight text-balance md:text-6xl">
-                Find real accessibility issues.{' '}
-                <span className="bg-gradient-to-r from-primary via-severity-minor to-primary bg-clip-text text-transparent">
-                  Understand every one of them.
+
+      <main className="relative z-10 flex-grow flex flex-col">
+        {/* Hero Section */}
+        <section className="relative border-b border-border py-16 md:py-24">
+          <div className="mx-auto flex max-w-7xl flex-col lg:flex-row items-center gap-12 lg:gap-16 px-4 md:px-8">
+            {/* Hero Left (Content) */}
+            <div className="flex flex-1 flex-col gap-5 animate-rise">
+              <div className="inline-flex w-fit items-center gap-2 rounded-xs border border-primary/30 bg-primary/5 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-primary">
+                <ScanEye className="size-3.5" aria-hidden="true" />
+                <span>Accessibility Intelligence Instrument</span>
+              </div>
+
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight text-foreground leading-[1.08]">
+                Find real accessibility barriers.{' '}
+                <span className="text-primary">
+                  Understand every one.
                 </span>
               </h1>
-              <p className="animate-rise-delay-2 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-                AUDEXIFY audits any web page with deterministic WCAG checks, assesses severity with
-                trained machine-learning models, and explains each finding in plain language — with
-                the provenance of every claim clearly labeled.
+
+              {/* Refined Supporting Description */}
+              <p className="max-w-lg text-sm sm:text-base leading-relaxed text-muted-foreground font-normal">
+                AUDEXIFY combines deterministic WCAG 2.2 browser inspection, local INT8 machine
+                learning classification, and grounded AI remediation guidance into an
+                infrastructure-grade platform.
               </p>
-              <div className="animate-rise-delay-3 flex flex-col gap-3 sm:flex-row">
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <Link
                   href="/audit"
                   className={cn(
                     buttonVariants({ size: 'lg' }),
-                    'h-12 gap-2 px-7 text-base shadow-[0_0_28px_-6px_var(--glow)] transition-shadow hover:shadow-[0_0_36px_-4px_var(--glow)]',
+                    'h-11 px-7 text-xs font-mono tracking-wider uppercase transition-all shadow-[0_0_16px_-4px_rgba(199,243,107,0.3)] hover:shadow-[0_0_20px_-2px_rgba(199,243,107,0.5)]',
                   )}
                 >
-                  Audit a website
-                  <ArrowRight className="size-4" aria-hidden="true" />
+                  Start Site Audit →
                 </Link>
                 <Link
                   href="/screenshot"
                   className={cn(
-                    buttonVariants({ size: 'lg', variant: 'outline' }),
-                    'h-12 bg-transparent px-7 text-base',
+                    buttonVariants({ variant: 'outline', size: 'lg' }),
+                    'h-11 px-7 text-xs font-mono tracking-wider uppercase',
                   )}
                 >
-                  Analyze a screenshot
+                  Analyze Screenshot
                 </Link>
               </div>
+
+              {/* Telemetry Status Bar */}
+              <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-border/70 font-mono text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-1.5 rounded-xs border border-border bg-surface-elevated px-2.5 py-1">
+                  <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+                  <span className="text-foreground font-semibold">SYSTEM STATUS // ONLINE</span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-xs border border-border bg-surface-elevated px-2.5 py-1">
+                  <CheckCircle2 className="size-3 text-primary" />
+                  <span>ANALYSIS ENGINE // READY</span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-xs border border-border bg-surface-elevated px-2.5 py-1">
+                  <CheckCircle2 className="size-3 text-primary" />
+                  <span>VISION // ONNX READY</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Hero Right (Telemetry HUD Scene) */}
+            <div className="w-full lg:w-[48%] relative flex items-center justify-center animate-rise-delay-1">
+              <HeroTelemetry />
             </div>
           </div>
         </section>
 
-        {/* Pipeline */}
-        <section aria-labelledby="pipeline-heading" className="border-b border-border">
-          <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 md:px-6 md:py-20">
+        {/* 3-Stage Pipeline Architecture */}
+        <section aria-labelledby="pipeline-heading" className="border-b border-border py-16 md:py-20">
+          <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 md:px-8 animate-rise-delay-2">
             <div className="flex flex-col gap-2">
-              <h2 id="pipeline-heading" className="text-2xl font-bold md:text-3xl">
-                A three-stage pipeline
+              <span className="font-mono text-xs uppercase tracking-widest text-primary font-semibold">
+                Multi-Engine Architecture
+              </span>
+              <h2 id="pipeline-heading" className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                Three-Stage Intelligence Pipeline
               </h2>
-              <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                Each stage does what it is best at — and nothing more.
+              <p className="max-w-2xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Each subsystem operates strictly within its verified domain: deterministic detection,
+                custom model scoring, and grounded AI explanation.
               </p>
             </div>
-            <ol className="flex flex-col gap-6 md:flex-row">
-              {PIPELINE.map((stage, i) => (
-                <li
-                  key={stage.label}
-                  className="card-lift flex flex-1 flex-col gap-4 rounded-xl border border-border bg-card p-6"
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {PIPELINE.map((stage) => (
+                <div
+                  key={stage.step}
+                  className="card-lift flex flex-col gap-4 rounded-sm border border-border bg-[#0D100E] p-6 relative"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="flex size-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                      <stage.icon className="size-5" aria-hidden="true" />
+                  <div className="flex items-center justify-between">
+                    <span className="flex size-9 items-center justify-center rounded-xs border border-primary/30 bg-primary/10 text-primary">
+                      <stage.icon className="size-4" aria-hidden="true" />
                     </span>
                     <span
                       className={cn(
-                        'rounded-full px-2.5 py-1 text-xs font-medium',
+                        'rounded-xs border px-2 py-0.5 font-mono text-[10px] uppercase font-semibold',
                         stage.badgeClass,
                       )}
                     >
                       {stage.badge}
                     </span>
                   </div>
-                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Stage {i + 1} · {stage.label}
-                  </span>
-                  <h3 className="text-lg font-semibold">{stage.title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{stage.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
 
-        {/* Principles */}
-        <section aria-labelledby="principles-heading">
-          <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 md:px-6 md:py-20">
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="size-6 text-primary" aria-hidden="true" />
-              <h2 id="principles-heading" className="text-2xl font-bold md:text-3xl">
-                Built for trust
-              </h2>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2">
-              {PRINCIPLES.map((principle) => (
-                <div
-                  key={principle.title}
-                  className="card-lift flex flex-col gap-2 rounded-xl border border-border bg-card p-6"
-                >
-                  <h3 className="text-base font-semibold">{principle.title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{principle.body}</p>
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    STAGE {stage.step} // {stage.label}
+                  </span>
+
+                  <h3 className="font-display text-base font-bold text-foreground">
+                    {stage.title}
+                  </h3>
+
+                  <p className="text-xs leading-relaxed text-muted-foreground">{stage.body}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Bottom CTA */}
-        <section aria-labelledby="cta-heading" className="border-t border-border">
-          <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-16 text-center md:px-6">
-            <h2 id="cta-heading" className="text-2xl font-bold text-balance md:text-3xl">
-              Run your first audit in seconds
-            </h2>
-            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-              No signup required. Point AUDEXIFY at any public URL and get a fully labeled,
-              plain-language accessibility report.
-            </p>
-            <Link
-              href="/audit"
-              className={cn(
-                buttonVariants({ size: 'lg' }),
-                'h-12 gap-2 px-7 text-base shadow-[0_0_28px_-6px_var(--glow)]',
-              )}
-            >
-              Start an audit
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
+        {/* Security & Reliability Bento Grid */}
+        <section aria-labelledby="trust-heading" className="py-16 md:py-20">
+          <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 md:px-8 animate-rise-delay-3">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="size-6 text-primary" aria-hidden="true" />
+              <h2 id="trust-heading" className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                Engineered for Integrity
+              </h2>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              {TRUST_FACTORS.map((factor) => (
+                <div
+                  key={factor.title}
+                  className="card-lift flex flex-col gap-2.5 rounded-sm border border-border bg-[#0D100E] p-6"
+                >
+                  <div className="flex items-center gap-2 text-primary">
+                    <factor.icon className="size-4" />
+                    <h3 className="font-display text-base font-bold text-foreground">
+                      {factor.title}
+                    </h3>
+                  </div>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{factor.body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        <footer className="border-t border-border">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-8 text-xs text-muted-foreground md:flex-row md:px-6">
-            <p>AUDEXIFY — AI-powered web accessibility intelligence.</p>
-            <p>
-              Automated checks catch a fraction of barriers. Always pair audits with manual testing.
+        {/* Bottom Call to Action */}
+        <section className="border-t border-border py-16">
+          <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 md:px-8 text-center">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground max-w-xl">
+              Initiate Your First Accessibility Audit
+            </h2>
+            <p className="max-w-lg text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              No account creation required. Point AUDEXIFY at any public URL or upload a UI
+              screenshot for instant, labeled remediation intelligence.
             </p>
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
+              <Link
+                href="/audit"
+                className={cn(
+                  buttonVariants({ size: 'lg' }),
+                  'h-11 px-8 font-mono text-xs uppercase tracking-wider',
+                )}
+              >
+                Start Website Audit →
+              </Link>
+              <Link
+                href="/screenshot"
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'lg' }),
+                  'h-11 px-8 font-mono text-xs uppercase tracking-wider',
+                )}
+              >
+                Analyze Screenshot
+              </Link>
+            </div>
           </div>
-        </footer>
+        </section>
       </main>
-    </>
+
+      {/* Technical Footer */}
+      <footer className="border-t border-border bg-[#08090B] py-8">
+        <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-4 px-4 md:px-8 font-mono text-xs text-muted-foreground">
+          <div>© 2026 AUDEXIFY // Accessibility Intelligence Platform</div>
+          <div className="flex items-center gap-4">
+            <Link href="/audit" className="hover:text-primary transition-colors">
+              Site Audit
+            </Link>
+            <span>·</span>
+            <Link href="/screenshot" className="hover:text-primary transition-colors">
+              Screenshot Mode
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }

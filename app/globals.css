@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-serif: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-chivo), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -28,118 +29,267 @@
   --color-foreground: var(--foreground);
   --color-background: var(--background);
 
+  /* Semantic Severity Tokens */
   --color-severity-critical: var(--severity-critical);
   --color-severity-serious: var(--severity-serious);
   --color-severity-moderate: var(--severity-moderate);
   --color-severity-minor: var(--severity-minor);
   --color-success: var(--success);
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
+  /* Surface & Border Hierarchy */
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
 }
 
 /*
- * AUDEXIFY is a dark-first product. The brand theme is applied
- * unconditionally so the interface is consistent in every color scheme.
+ * AUDEXIFY — Deep Near-Black Technical Intelligence Design System
+ * Restrained acid/chartreuse signal accents with zero eye-fatigue bloom.
  */
 :root,
 .dark {
   color-scheme: dark;
-  --radius: 0.75rem;
+  --radius: 0.25rem;
 
-  --background: oklch(0.13 0.02 275);
-  --foreground: oklch(0.95 0.008 270);
-  --card: oklch(0.17 0.022 275);
-  --card-foreground: oklch(0.95 0.008 270);
-  --popover: oklch(0.17 0.022 275);
-  --popover-foreground: oklch(0.95 0.008 270);
-  --primary: oklch(0.62 0.24 280);
-  --primary-foreground: oklch(0.98 0.005 270);
-  --secondary: oklch(0.23 0.03 278);
-  --secondary-foreground: oklch(0.95 0.008 270);
-  --muted: oklch(0.2 0.024 275);
-  --muted-foreground: oklch(0.7 0.02 272);
-  --accent: oklch(0.25 0.04 280);
-  --accent-foreground: oklch(0.95 0.008 270);
-  --destructive: oklch(0.6 0.21 25);
-  --destructive-foreground: oklch(0.97 0.005 250);
-  --border: oklch(0.27 0.03 276);
-  --input: oklch(0.27 0.03 276);
-  --ring: oklch(0.62 0.24 280);
+  /* Deep Canvas & Surface Tokens */
+  --background: #08090B;
+  --foreground: #F1F0EA;
+  --card: #0D100E;
+  --card-foreground: #F1F0EA;
+  --popover: #111413;
+  --popover-foreground: #F1F0EA;
 
-  --severity-critical: oklch(0.64 0.2 25);
-  --severity-serious: oklch(0.71 0.15 55);
-  --severity-moderate: oklch(0.8 0.13 90);
-  --severity-minor: oklch(0.72 0.12 265);
-  --success: oklch(0.74 0.14 155);
+  /* Primary Signal Accent: Electric Lime/Chartreuse */
+  --primary: #C7F36B;
+  --primary-foreground: #08090B;
 
-  /* Signature glow used by the hero and interactive surfaces */
-  --glow: oklch(0.62 0.24 280 / 0.35);
+  /* Secondary & Muted Surfaces */
+  --secondary: #121413;
+  --secondary-foreground: #F1F0EA;
+  --muted: #161918;
+  --muted-foreground: #8B8F98;
+  --accent: #1F2229;
+  --accent-foreground: #F1F0EA;
+
+  /* Subtle Hairline Borders */
+  --border: #1F2229;
+  --border-subtle: #1F2229;
+  --border-strong: #2A3029;
+  --input: #1F2229;
+  --ring: #C7F36B;
+
+  /* Additional Surface Layers */
+  --surface-elevated: #111413;
+  --surface-overlay: #161918;
+
+  /* Destructive & Severity Tokens */
+  --destructive: #FF6B6B;
+  --destructive-foreground: #08090B;
+  --severity-critical: #FF6B6B;
+  --severity-serious: #FF8E72;
+  --severity-moderate: #FFB86B;
+  --severity-minor: #8E937F;
+  --success: #C7F36B;
+
+  /* Controlled Glow Tokens (Darkened for eye comfort) */
+  --glow: rgba(199, 243, 107, 0.15);
+  --glow-coral: rgba(255, 107, 107, 0.15);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/40;
   }
   html {
-    @apply bg-background;
+    @apply bg-background text-foreground scroll-smooth;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground;
+    background-color: #08090B;
   }
   h1,
   h2,
   h3,
-  h4 {
-    @apply font-serif;
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display), var(--font-sans);
+    letter-spacing: -0.025em;
+  }
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-mono), monospace;
   }
 }
 
 @layer utilities {
-  /* Staggered entrance for page sections — GPU-composited, no layout thrash */
-  .animate-rise {
-    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  .animate-rise-delay-1 {
-    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
-  }
-  .animate-rise-delay-2 {
-    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
-  }
-  .animate-rise-delay-3 {
-    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+  /* Animated Technical Dot-Matrix Background Grid */
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle at center, rgba(31, 34, 41, 0.5) 1px, transparent 1px);
+    background-size: 24px 24px;
+    animation: grid-drift 60s linear infinite;
   }
 
-  /* Interactive card lift — transform/shadow only, cheap to composite */
+  /* Sweep scanning beam across viewport */
+  .animate-sweep-beam {
+    animation: sweep-pass 18s ease-in-out infinite;
+  }
+
+  /* Waveform Line Pulse */
+  .animate-waveform {
+    stroke-dasharray: 6 3;
+    animation: wave-shift 4s linear infinite;
+  }
+
+  /* Slow Spotlight Breathing */
+  .animate-pulse-slow {
+    animation: breathe-slow 12s ease-in-out infinite alternate;
+  }
+
+  /* Technical Hairline Border Panels */
+  .tech-panel {
+    background-color: #0D100E;
+    border: 1px solid #1F2229;
+    border-radius: 0.25rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .tech-panel:hover {
+    border-color: #2E342D;
+  }
+
+  /* Corner Crosshairs / L-Bracket Accents */
+  .crosshair-corner {
+    position: relative;
+  }
+  .crosshair-corner::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--primary);
+    border-left: 1px solid var(--primary);
+    pointer-events: none;
+    z-index: 10;
+  }
+  .crosshair-corner::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--primary);
+    border-right: 1px solid var(--primary);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Interactive Card Lift */
   .card-lift {
     transition:
-      transform 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
   }
   .card-lift:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in oklch, var(--primary) 45%, var(--border));
-    box-shadow: 0 8px 30px -12px var(--glow);
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: 0 6px 20px -8px var(--glow);
   }
 
-  /* Hero grid backdrop — pure CSS, zero network cost */
-  .hero-grid {
-    background-image:
-      linear-gradient(color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 75%);
+  /* Stepped Section Entrance Animations */
+  .animate-rise {
+    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-rise-delay-1 {
+    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+  }
+  .animate-rise-delay-2 {
+    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
+  }
+  .animate-rise-delay-3 {
+    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+  }
+
+  /* Laser Scan Line */
+  .animate-scan {
+    animation: scan-laser 2.8s ease-in-out infinite;
+  }
+
+  /* Telemetry Radar Ping */
+  .animate-ping-slow {
+    animation: ping-slow 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* Diagnostic Error Pulse */
+  .animate-pulse-error {
+    animation: pulse-error 3s ease-in-out infinite;
+  }
+}
+
+@keyframes grid-drift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 24px 24px;
+  }
+}
+
+@keyframes sweep-pass {
+  0% {
+    transform: translateY(-100%) rotate(-45deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.12;
+  }
+  70% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translateY(200%) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes breathe-slow {
+  0% {
+    opacity: 0.25;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 0.55;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes wave-shift {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 36;
   }
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -147,16 +297,61 @@
   }
 }
 
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes scan-laser {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-error {
+  0%, 100% {
+    box-shadow: 0 0 15px -4px rgba(255, 107, 107, 0.2);
+    border-color: rgba(255, 107, 107, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px 0px rgba(255, 107, 107, 0.35);
+    border-color: rgba(255, 107, 107, 0.7);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise,
   .animate-rise-delay-1,
   .animate-rise-delay-2,
-  .animate-rise-delay-3 {
-    animation: none;
+  .animate-rise-delay-3,
+  .animate-scan,
+  .animate-sweep-beam,
+  .animate-waveform,
+  .animate-pulse-slow,
+  .animate-pulse-error,
+  .bg-dot-pattern {
+    animation: none !important;
   }
   .card-lift,
   .card-lift:hover {
-    transition: none;
-    transform: none;
+    transition: none !important;
+    transform: none !important;
   }
 }

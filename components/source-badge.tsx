@@ -5,32 +5,32 @@ type SourceKind = 'deterministic' | 'ml' | 'ai'
 
 const CONFIG: Record<SourceKind, { label: string; icon: typeof Cpu; className: string }> = {
   deterministic: {
-    label: 'Deterministic',
+    label: 'Deterministic Engine',
     icon: Cpu,
-    className: 'text-muted-foreground border-border',
+    className: 'text-muted-foreground border-border bg-surface-elevated',
   },
   ml: {
-    label: 'Custom ML',
+    label: 'Custom ML (ONNX)',
     icon: FlaskConical,
-    className: 'text-primary border-primary/40',
+    className: 'text-primary border-primary/40 bg-primary/10',
   },
   ai: {
-    label: 'AI-generated',
+    label: 'AI Explanation',
     icon: Sparkles,
-    className: 'text-severity-moderate border-severity-moderate/40',
+    className: 'text-severity-moderate border-severity-moderate/40 bg-severity-moderate/10',
   },
 }
 
 /**
  * Transparency label distinguishing how a piece of content was produced:
- * deterministic engine, custom ML classifier, or LLM narrative.
+ * deterministic axe-core, custom ML classifier, or LLM narrative.
  */
 export function SourceBadge({ kind, className }: { kind: SourceKind; className?: string }) {
   const { label, icon: Icon, className: kindClass } = CONFIG[kind]
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs',
+        'inline-flex items-center gap-1.5 rounded-xs border px-2 py-0.5 font-mono text-[10px] font-medium tracking-wide uppercase',
         kindClass,
         className,
       )}

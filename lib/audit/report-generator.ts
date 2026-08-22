@@ -1,0 +1,136 @@
+import type { AuditResult, AuditIssue } from '@/types/audit'
+
+export function generateCodeAgentPrompt(issue: AuditIssue, projectUrl?: string): string {
+  const selector = issue.nodes[0]?.target || 'Not specified'
+  const htmlSnippet = issue.nodes[0]?.html || '<!-- DOM element snippet not available -->'
+  const wcagList = issue.wcag.map((w) => `WCAG ${w.criterion} (${w.name} - Level ${w.level})`).join(', ')
+
+  return `PROJECT: AUDEXIFY Accessibility Remediation
+TARGET: ${projectUrl || 'Web Application'}
+RULE ID: ${issue.ruleId}
+ISSUE: ${issue.name}
+WCAG CRITERIA: ${wcagList || 'WCAG 2.2 Level AA'}
+SEVERITY: ${issue.severity.toUpperCase()}
+SOURCE ENGINE: ${issue.source === 'deterministic' ? 'axe-core (Deterministic)' : 'Custom ML / Hybrid'}
+
+AFFECTED ELEMENT SELECTOR:
+${selector}
+
+DOM HTML CONTEXT:
+\`\`\`html
+${htmlSnippet}
+\`\`\`
+
+SOURCE LOCATION:
+Not available directly from browser runtime audit. Locate the element matching selector "${selector}" in your component templates/JSX.
+
+CURRENT PROBLEM:
+${issue.description}
+
+WHY IT MATTERS:
+${issue.explanation?.whyItMatters || 'This accessibility barrier impairs screen readers, keyboard navigation, or visual perception, failing compliance with WCAG standards.'}
+
+AFFECTED USER GROUPS:
+${issue.explanation?.affectedUsers || 'Users with visual impairments, motor disabilities, or situational limitations.'}
+
+REQUIRED FIX:
+${issue.explanation?.recommendedFix || 'Update the markup or CSS styling to comply with WCAG requirements.'}
+
+EXAMPLE CODE CORRECTION:
+\`\`\`tsx
+${issue.explanation?.codeExample || `// Remediation pattern for ${issue.ruleId}\n// Ensure proper ARIA attributes, semantic tags, or contrast ratios.`}
+\`\`\`
+
+CONSTRAINTS:
+- Preserve existing application layout and brand aesthetics.
+- Do not break existing click handlers, state management, or functionality.
+- Maintain responsive behavior across mobile, tablet, and desktop viewports.
+- Maintain accessibility compliance (WCAG 2.2 Level AA).
+- Do not modify unrelated files.
+
+ACCEPTANCE CRITERIA:
+1. The element "${selector}" satisfies ${wcagList || issue.ruleId}.
+2. Automated axe-core audits report 0 violations for rule "${issue.ruleId}".
+3. No visual regression introduced in surrounding UI components.
+
+VERIFICATION:
+Run local accessibility linter or automated test suite to confirm the violation is resolved.`
+}
+
+export function exportAuditAsMarkdown(result: AuditResult): string {
+  const timestamp = new Date(result.fetchedAt).toLocaleString()
+  let md = `# AUDEXIFY Accessibility Audit & Remediation Report\n\n`
+  md += `**Target URL:** ${result.finalUrl}\n`
+  md += `**Audit Timestamp:** ${timestamp}\n`
+  md += `**Accessibility Index:** ${result.score.overall}/100 (Grade ${result.score.grade})\n`
+  md += `**Standard:** WCAG 2.2 Level AA\n`
+  md += `**Engine:** axe-core v${result.engine.axeVersion} | ML: ${result.engine.nlp.available ? result.engine.nlp.model : 'Disabled'}\n\n`
+  md += `---\n\n`
+
+  if (result.summary) {
+    md += `## Executive Summary\n\n`
+    md += `**${result.summary.headline}**\n\n`
+    md += `${result.summary.overview}\n\n`
+    if (result.summary.topPriorities.length > 0) {
+      md += `### Top Priority Actions:\n`
+      result.summary.topPriorities.forEach((p, i) => {
+        md += `${i + 1}. ${p}\n`
+      })
+      md += `\n`
+    }
+  }
+
+  md += `## Severity Distribution\n\n`
+  md += `- **Critical:** ${result.score.severityCounts.critical}\n`
+  md += `- **Serious:** ${result.score.severityCounts.serious}\n`
+  md += `- **Moderate:** ${result.score.severityCounts.moderate}\n`
+  md += `- **Minor:** ${result.score.severityCounts.minor}\n\n`
+  md += `---\n\n`
+
+  md += `## Detailed Findings & Code-Agent Fixes\n\n`
+  result.issues.forEach((issue, idx) => {
+    md += `### ${idx + 1}. [${issue.severity.toUpperCase()}] ${issue.name}\n\n`
+    md += `* **Rule ID:** \`${issue.ruleId}\`\n`
+    md += `* **WCAG Criteria:** ${issue.wcag.map((w) => `WCAG ${w.criterion} (${w.name})`).join(', ') || 'N/A'}\n`
+    md += `* **Description:** ${issue.description}\n\n`
+
+    if (issue.nodes.length > 0) {
+      md += `**Affected DOM Elements:**\n`
+      issue.nodes.forEach((node) => {
+        md += `- Selector: \`${node.target}\`\n`
+        md += `  \`\`\`html\n  ${node.html}\n  \`\`\`\n`
+      })
+      md += `\n`
+    }
+
+    if (issue.explanation) {
+      md += `**Remediation Recommendation:**\n${issue.explanation.recommendedFix}\n\n`
+      if (issue.explanation.codeExample) {
+        md += `**Example Patch:**\n\`\`\`tsx\n${issue.explanation.codeExample}\n\`\`\`\n\n`
+      }
+    }
+
+    md += `**AI Code-Agent Prompt:**\n\`\`\`text\n${generateCodeAgentPrompt(issue, result.finalUrl)}\n\`\`\`\n\n`
+    md += `---\n\n`
+  })
+
+  md += `## Remediation Checklist\n\n`
+  result.issues.forEach((issue, idx) => {
+    md += `- [ ] Fix ${issue.severity.toUpperCase()}: ${issue.name} (${issue.ruleId})\n`
+  })
+  md += `\n*Generated by AUDEXIFY Intelligence Platform — https://audexify.com*\n`
+
+  return md
+}
+
+export function downloadFile(filename: string, content: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
